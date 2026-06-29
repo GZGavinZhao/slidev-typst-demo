@@ -15,6 +15,11 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  # The Slidev fork that contains the Typst math renderer, and the branch to use.
+  SLIDEV_FORK_REPO: https://github.com/GZGavinZhao/slidev
+  SLIDEV_FORK_REF: gzgz/native-typst-renderer
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,19 +27,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.1
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
+          cache: pnpm
+
+      # 1. Clone the Slidev fork (with the Typst renderer) into .slidev-fork
+      - name: Clone Slidev fork
+        run: git clone --depth 1 --branch "$SLIDEV_FORK_REF" "$SLIDEV_FORK_REPO" .slidev-fork
+
+      # 2. Build the fork's workspace packages (types, parser, client, cli).
+      #    @slidev/cli is consumed via `link:` from the demo's package.json,
+      #    and resolves its workspace siblings + the native Typst compiler
+      #    (@myriaddreamin/typst-ts-node-compiler) through the fork's node_modules.
+      - name: Build Slidev fork
+        working-directory: .slidev-fork
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm -r --filter="./packages/**" run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+      # 3. Install the demo (links to the built fork) and build the slides
+      - name: Install demo dependencies
+        run: pnpm install --no-frozen-lockfile
 
-      - name: Build
-        run: yarn build --base /slidev-typst-demo
+      - name: Build slides
+        run: pnpm build --base /slidev-typst-demo/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
