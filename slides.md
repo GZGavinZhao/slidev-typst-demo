@@ -28,10 +28,24 @@ Typst math flows naturally inside text.
 For a vector $bold(v) in RR^n$, the Euclidean norm is
 $norm(bold(v)) = sqrt(sum_(i=1)^n v_i^2)$.
 
+```markdown
+For a vector $bold(v) in RR^n$, the Euclidean norm is
+$norm(bold(v)) = sqrt(sum_(i=1)^n v_i^2)$.
+```
+
 A function $f: A -> B$ is *injective* if
 $f(a_1) = f(a_2) ==> a_1 = a_2$.
 
+```markdown
+A function $f: A -> B$ is *injective* if
+$f(a_1) = f(a_2) ==> a_1 = a_2$.
+```
+
 The golden ratio is $phi = (1 + sqrt(5)) / 2 approx 1.618$.
+
+```markdown
+The golden ratio is $phi = (1 + sqrt(5)) / 2 approx 1.618$.
+```
 
 <div class="mt-4 text-sm opacity-60">
 
